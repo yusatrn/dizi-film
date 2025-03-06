@@ -1,0 +1,598 @@
+// Mixin for text overflow control - keep this at the top
+@mixin text-overflow-control {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.content-container {
+  min-height: calc(100vh - 60px);
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+// Backdrop Header Styles
+// Backdrop Header Styles - FIX OVERFLOW ISSUES
+.backdrop-header {
+  position: relative;
+  height: auto; // Auto height instead of fixed
+  min-height: 450px; // Minimum height instead of fixed
+  max-height: 80vh; // Maximum height relative to viewport
+  margin-bottom: 20px;
+  overflow: hidden; // Hide overflow
+
+  .backdrop-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    min-height: 450px;
+  }
+
+  .backdrop-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 450px;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.8) 0%,
+        rgba(0, 0, 0, 0.6) 50%,
+        rgba(0, 0, 0, 0.8) 100%
+    );
+  }
+
+  .backdrop-content {
+    position: relative; // Ensure this is properly positioned
+    padding-top: 80px; // Less padding
+    padding-bottom: 40px; // Add bottom padding
+    width: 100%; // Full width
+    max-width: 100%; // Don't exceed container
+    margin: 0; // Reset margins
+
+    .row {
+      margin: 0; // Reset row margins
+      width: 100%;
+      max-width: 100%;
+    }
+
+    [class*="col-"] {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  }
+
+  .poster {
+    max-height: 400px; // Slightly smaller
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    width: auto; // Allow natural sizing
+    max-width: 100%; // Contain within column
+  }
+
+  .no-poster {
+    width: 100%;
+    height: 400px; // Match poster height
+    background-color: #343a40;
+    color: #adb5bd;
+    font-size: 1.2rem;
+    border-radius: 0.25rem;
+  }
+
+  .title {
+    font-size: 2.2rem; // Slightly smaller
+    font-weight: 700;
+    margin-bottom: 10px;
+    @include text-overflow-control;
+
+    .release-year {
+      font-weight: 300;
+      opacity: 0.8;
+    }
+  }
+
+  .meta-info {
+    .badge {
+      padding: 0.4em 0.7em; // Smaller padding
+      font-size: 0.8rem; // Smaller font
+      margin-bottom: 5px; // Add margin for wrapping
+      display: inline-block; // Allow proper wrapping
+    }
+
+    .release-date {
+      font-style: italic;
+      font-size: 0.9rem;
+      opacity: 0.8;
+      display: inline-block; // Allow proper wrapping
+      margin-bottom: 5px; // Add margin for wrapping
+    }
+  }
+
+  .rating-circle {
+    width: 50px; // Slightly smaller
+    height: 50px; // Slightly smaller
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 50%;
+    border: 3px solid #28a745;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .rating-value {
+      color: white;
+      font-size: 1.1rem; // Slightly smaller
+      font-weight: 700;
+    }
+  }
+
+  .rating-text {
+    color: white;
+    font-size: 0.8rem; // Slightly smaller
+    line-height: 1.2;
+  }
+
+  .tagline {
+    font-style: italic;
+    font-size: 1.1rem; // Slightly smaller
+    @include text-overflow-control;
+    margin-bottom: 10px; // More space
+  }
+
+  .overview {
+    font-size: 0.95rem; // Slightly smaller
+    line-height: 1.5; // Slightly tighter
+    max-width: 100%;
+    @include text-overflow-control;
+    max-height: 150px; // Limit height
+    overflow-y: auto; // Allow scrolling if needed
+  }
+
+  // Buttons container
+  .d-flex {
+    flex-wrap: wrap; // Allow buttons to wrap
+
+    .btn {
+      margin-bottom: 10px; // Add spacing for wrapped buttons
+    }
+  }
+}
+
+
+// Content Body Styles
+.content-body {
+  margin-bottom: 50px;
+  overflow-x: hidden;
+  width: 100%;
+
+  // Apply overflow control to all text elements
+  h1, h2, h3, h4, h5, h6, p, span, a, li {
+    @include text-overflow-control;
+  }
+
+  .nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+
+    .nav-link {
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: #495057;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      margin-right: 1rem;
+      transition: all 0.2s ease;
+
+      &:hover:not(.active) {
+        border-bottom-color: #adb5bd;
+      }
+
+      &.active {
+        color: #007bff;
+        background-color: transparent;
+        border-bottom-color: #007bff;
+      }
+    }
+  }
+
+  h4 {
+    color: #343a40;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  // Overview Tab
+  .crew-card {
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 5px;
+    @include text-overflow-control;
+  }
+
+  .details-sidebar {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 100%;
+
+    .detail-item {
+      margin-bottom: 20px;
+
+      h6 {
+        color: #6c757d;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+      }
+
+      p {
+        font-weight: 500;
+        margin-bottom: 0;
+      }
+
+      ul li {
+        margin-bottom: 5px;
+      }
+    }
+  }
+
+  // Cast Tab
+  .cast-card {
+    img {
+      width: 100%;
+      height: auto;
+      max-height: 180px;
+      object-fit: cover;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h6 {
+      font-size: 0.9rem;
+      margin-top: 8px;
+      @include text-overflow-control;
+    }
+
+    p {
+      font-size: 0.8rem;
+      @include text-overflow-control;
+    }
+  }
+
+  // Card styles for consistency
+  .card-title, .card-text {
+    @include text-overflow-control;
+  }
+
+  .card, .list-group-item, .detail-item {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  // Videos Tab
+  .video-container {
+    h5 {
+      margin-bottom: 15px;
+    }
+  }
+
+  // Trailer Section in Overview
+  .trailer-section {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 100%;
+
+    h4 {
+      color: #343a40;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+
+    .trailer-container {
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      border-radius: 4px;
+      overflow: hidden;
+      width: 100%;
+      max-width: 100%;
+
+      iframe {
+        border: none;
+        max-width: 100%;
+      }
+
+      .ratio {
+        width: 100%;
+        max-width: 100%;
+      }
+    }
+  }
+
+  // Videos Tab Styling
+  .video-featured {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 100%;
+
+    .ratio {
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      border-radius: 8px;
+      overflow: hidden;
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+
+  .video-grid {
+    .video-card {
+      transition: transform 0.2s, box-shadow 0.2s;
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+      }
+
+      .video-thumbnail {
+        position: relative;
+        cursor: pointer;
+
+        img {
+          height: 180px;
+          object-fit: cover;
+          width: 100%;
+        }
+
+        .play-button {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          color: white;
+          font-size: 3rem;
+          opacity: 0.8;
+          transition: opacity 0.2s, transform 0.2s;
+        }
+
+        &:hover .play-button {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .video-type {
+          position: absolute;
+          bottom: 10px;
+          right: 10px;
+          font-size: 0.75rem;
+        }
+      }
+    }
+  }
+
+  // Seasons Tab
+  .season-selector {
+    .btn-group {
+      flex-wrap: wrap;
+
+      .btn {
+        margin: 0 5px 5px 0;
+      }
+    }
+  }
+
+  .season-info {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 100%;
+
+    p, h5, .text-muted {
+      @include text-overflow-control;
+    }
+
+    .no-poster {
+      width: 100%;
+      height: 200px;
+      background-color: #e9ecef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      color: #6c757d;
+    }
+  }
+
+  .episodes-list {
+    max-width: 100%;
+
+    .list-group-item {
+      transition: background-color 0.2s;
+      max-width: 100%;
+
+      &:hover {
+        background-color: #f8f9fa;
+      }
+
+      .ms-3 {
+        h6, p {
+          @include text-overflow-control;
+        }
+      }
+    }
+
+    .episode-number {
+      width: 30px;
+      height: 30px;
+      background-color: #007bff;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  // Reviews Tab
+  .reviews-list {
+    max-width: 100%;
+
+    .review-content {
+      white-space: pre-line;
+      line-height: 1.6;
+      max-height: 300px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      @include text-overflow-control;
+    }
+  }
+
+  // Fix row margins to prevent overflow
+  .row {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  // Ensure columns don't cause overflow
+  [class*="col-"] {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+// Responsive Design
+@media (max-width: 767.98px) {
+  .backdrop-header {
+    height: auto;
+
+    .backdrop-content {
+      padding-top: 60px;
+      padding-bottom: 40px;
+    }
+
+    .poster {
+      max-height: 300px;
+      margin-bottom: 20px;
+    }
+
+    .no-poster {
+      height: 300px;
+      margin-bottom: 20px;
+    }
+
+    .title {
+      font-size: 1.8rem;
+    }
+
+    .overview {
+      font-size: 0.9rem;
+    }
+  }
+
+  .content-body {
+    .nav-tabs {
+      .nav-link {
+        padding: 0.5rem 0.5rem;
+        margin-right: 0.5rem;
+        font-size: 0.9rem;
+      }
+    }
+
+    h4 {
+      font-size: 1.4rem;
+    }
+
+    h5 {
+      font-size: 1.2rem;
+    }
+
+    [class*="col-"] {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+  }
+
+  .trailer-section, .video-featured {
+    padding: 10px !important;
+  }
+
+  .crew-card {
+    width: 100%;
+    margin-right: 0 !important;
+  }
+
+  // Less spacing on mobile
+  .mt-5 {
+    margin-top: 2rem !important;
+  }
+
+  .mb-5 {
+    margin-bottom: 2rem !important;
+  }
+}
+
+// Placeholder Images
+// Create placeholder image for person profiles
+.cast-card img[src="assets/person-placeholder.jpg"] {
+  background: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: #6c757d;
+
+  &::after {
+    content: "Görsel Yok";
+  }
+}
+
+// Create placeholder for missing content images
+.card img[src="assets/no-image.jpg"] {
+  height: 300px;
+  background: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: #6c757d;
+
+  &::after {
+    content: "Görsel Yok";
+  }
+}
+
+// Add a placeholder image for reviews with no avatar
+img[src="assets/avatar-placeholder.jpg"] {
+  background: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: white;
+
+  &::after {
+    content: "?";
+  }
+}
+
+// Placeholder for video thumbnails
+img[src="assets/video-placeholder.jpg"] {
+  background: #343a40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: white;
+
+  &::after {
+    content: "Video";
+  }
+}

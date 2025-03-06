@@ -1,0 +1,400 @@
+<div class="container-fluid content-container p-0">
+  <div *ngIf="isLoading" class="text-center my-5 py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Yükleniyor...</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger m-3">
+    {{ error }}
+  </div>
+
+  <div *ngIf="content && !isLoading" class="content-details">
+    <!-- Backdrop Header -->
+    <div class="backdrop-header" *ngIf="content.backdrop_path">
+      <img [src]="imageBaseUrl + 'original' + content.backdrop_path" [alt]="getTitle()" class="backdrop-img">
+      <div class="backdrop-overlay"></div>
+      <div class="container position-relative">
+        <div class="row backdrop-content">
+          <div class="col-md-3">
+            <img *ngIf="content.poster_path" [src]="imageBaseUrl + 'w500' + content.poster_path" [alt]="getTitle()" class="img-fluid poster rounded shadow">
+            <div *ngIf="!content.poster_path" class="no-poster d-flex align-items-center justify-content-center">
+              <span>Afiş Yok</span>
+            </div>
+          </div>
+          <div class="col-md-9">
+            <h1 class="title text-white mb-2">
+              {{ getTitle() }}
+              <span class="release-year" *ngIf="getReleaseYear()">({{ getReleaseYear() }})</span>
+            </h1>
+
+            <div class="meta-info my-3">
+              <span class="badge bg-primary me-2" *ngIf="type === 'film' && isMovie(content) && content.runtime">{{ getRuntime() }}</span>
+              <span class="badge bg-primary me-2" *ngIf="type === 'dizi' && getNumberOfSeasons()">{{ getNumberOfSeasons() }} Sezon</span>
+              <span class="badge bg-secondary me-2" *ngFor="let genre of content.genres">{{ genre.name }}</span>
+              <span class="release-date text-white ms-2" *ngIf="getReleaseDate()">{{ formatDate(getReleaseDate()) }}</span>
+            </div>
+
+            <div class="rating my-3">
+              <div class="d-flex align-items-center">
+                <div class="rating-circle me-3">
+                  <div class="rating-value">
+                    {{ content.vote_average | number:'1.1-1' }}
+                  </div>
+                </div>
+                <div>
+                  <div class="rating-text">Kullanıcı<br>Puanı</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tagline my-3 text-white-50" *ngIf="getTagline()">
+              {{ getTagline() }}
+            </div>
+
+            <h3 class="text-white mb-3">Özet</h3>
+            <p class="overview text-white">{{ content.overview || 'Bu içerik için özet bulunmamaktadır.' }}</p>
+
+            <div class="crew mt-4" *ngIf="directors.length > 0">
+              <div class="crew-item mb-3" *ngFor="let director of directors">
+                <h6 class="text-white-50 mb-1">Yönetmen</h6>
+                <p class="text-white mb-0">{{ director.name }}</p>
+              </div>
+            </div>
+
+            <div class="d-flex mt-4">
+              <button class="btn btn-outline-light me-3" (click)="goBack()">
+                <i class="bi bi-arrow-left me-1"></i> Geri Dön
+              </button>
+              <button *ngIf="trailerUrl" class="btn btn-primary" (click)="playTrailer()">
+                <i class="bi bi-play-fill me-1"></i> Fragmanı İzle
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container content-body mt-4">
+      <!-- Tabs -->
+      <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="activeTab === 'overview'" (click)="setActiveTab('overview')" href="javascript:void(0)">
+            Genel Bakış
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="cast.length > 0">
+          <a class="nav-link" [class.active]="activeTab === 'cast'" (click)="setActiveTab('cast')" href="javascript:void(0)">
+            Oyuncular
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="videos.length > 0">
+          <a class="nav-link" [class.active]="activeTab === 'videos'" (click)="setActiveTab('videos')" href="javascript:void(0)">
+            Videolar <span class="badge bg-secondary">{{ videos.length }}</span>
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="seasons && seasons.length > 0">
+          <a class="nav-link" [class.active]="activeTab === 'seasons'" (click)="setActiveTab('seasons')" href="javascript:void(0)">
+            Sezonlar
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="similarContent.length > 0">
+          <a class="nav-link" [class.active]="activeTab === 'similar'" (click)="setActiveTab('similar')" href="javascript:void(0)">
+            Benzer İçerikler
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="reviews.length > 0">
+          <a class="nav-link" [class.active]="activeTab === 'reviews'" (click)="setActiveTab('reviews')" href="javascript:void(0)">
+            İncelemeler
+          </a>
+        </li>
+      </ul>
+
+      <!-- Tab Contents -->
+      <div [ngSwitch]="activeTab">
+        <!-- Overview Tab -->
+        <div *ngSwitchCase="'overview'">
+          <!-- Additional Details -->
+          <div class="row">
+            <div class="col-md-8">
+              <h4>Hikaye</h4>
+              <p>{{ content.overview || 'Bu içerik için özet bulunmamaktadır.' }}</p>
+
+              <div class="mt-4" *ngIf="writers.length > 0">
+                <h5>Senaristler</h5>
+                <div class="d-flex flex-wrap">
+                  <div class="crew-card me-4 mb-3" *ngFor="let writer of writers">
+                    <p class="mb-0 fw-bold">{{ writer.name }}</p>
+                    <p class="text-muted small mb-0">{{ writer.job }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="details-sidebar">
+                <div class="detail-item" *ngIf="getStatus()">
+                  <h6>Durum</h6>
+                  <p>{{ getStatus() }}</p>
+                </div>
+
+                <div class="detail-item" *ngIf="getBudget() && getBudget()! > 0">
+                  <h6>Bütçe</h6>
+                  <p>{{ getBudget() | currency:'USD':'symbol':'1.0-0' }}</p>
+                </div>
+
+                <div class="detail-item" *ngIf="getRevenue() && getRevenue()! > 0">
+                  <h6>Hasılat</h6>
+                  <p>{{ getRevenue() | currency:'USD':'symbol':'1.0-0' }}</p>
+                </div>
+
+                <div class="detail-item" *ngIf="type === 'dizi' && getNumberOfEpisodes()">
+                  <h6>Bölüm Sayısı</h6>
+                  <p>{{ getNumberOfEpisodes() }} bölüm</p>
+                </div>
+
+                <div class="detail-item" *ngIf="getOriginalLanguage()">
+                  <h6>Orijinal Dil</h6>
+                  <p>{{ getOriginalLanguage() | uppercase }}</p>
+                </div>
+
+                <div class="detail-item" *ngIf="getProductionCompanies() && getProductionCompanies()!.length > 0">
+                  <h6>Yapım Şirketleri</h6>
+                  <ul class="list-unstyled">
+                    <li *ngFor="let company of getProductionCompanies()">{{ company.name }}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fragman Bölümü (YENİ) -->
+          <div class="trailer-section mt-5 mb-4 container-fluid px-0" *ngIf="trailerUrl">
+            <h4><i class="bi bi-film me-2"></i>Resmi Fragman</h4>
+            <div class="trailer-container">
+              <div class="ratio ratio-16x9">
+                <iframe [src]="trailerUrl" allowfullscreen></iframe>
+              </div>
+            </div>
+          </div>
+          <!-- Cast Section in Overview -->
+          <div class="mt-4" *ngIf="cast.length > 0">
+            <h4>Başrol Oyuncuları</h4>
+            <div class="row">
+              <div class="col-md-2 col-sm-4 col-6 mb-3" *ngFor="let actor of cast.slice(0, 6)">
+                <div class="cast-card">
+                  <img [src]="actor.profile_path ? (imageBaseUrl + 'w185' + actor.profile_path) : 'assets/person-placeholder.jpg'"
+                       [alt]="actor.name" class="img-fluid rounded">
+                  <h6 class="mt-2 mb-0">{{ actor.name }}</h6>
+                  <p class="text-muted small">{{ actor.character }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="text-end mt-2" *ngIf="cast.length > 6">
+              <a href="javascript:void(0)" (click)="setActiveTab('cast')" class="btn btn-sm btn-outline-primary">
+                Tüm Oyuncuları Göster
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cast Tab -->
+        <div *ngSwitchCase="'cast'">
+          <h4>Oyuncu Kadrosu</h4>
+          <div class="row">
+            <div class="col-md-2 col-sm-3 col-6 mb-4" *ngFor="let actor of cast">
+              <div class="cast-card">
+                <img [src]="actor.profile_path ? (imageBaseUrl + 'w185' + actor.profile_path) : 'assets/person-placeholder.jpg'"
+                     [alt]="actor.name" class="img-fluid rounded">
+                <h6 class="mt-2 mb-0">{{ actor.name }}</h6>
+                <p class="text-muted small">{{ actor.character }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Videos Tab -->
+        <div *ngSwitchCase="'videos'">
+          <h4>Fragmanlar & Videolar</h4>
+
+          <!-- Video bulunamadı mesajı -->
+          <div class="alert alert-info mt-3" *ngIf="videos.length === 0">
+            <h5>Video Bulunamadı</h5>
+            <p>Bu içerik için herhangi bir video bulunamadı.</p>
+          </div>
+
+          <!-- Fragman Bölümü -->
+          <div id="trailer" class="video-featured mb-5" *ngIf="trailerUrl">
+            <div class="featured-header d-flex justify-content-between align-items-center mb-2">
+              <h5 class="mb-0"><i class="bi bi-star-fill text-warning me-2"></i>Öne Çıkan Fragman</h5>
+              <span class="badge bg-danger">Resmi Fragman</span>
+            </div>
+            <div class="ratio ratio-16x9">
+              <iframe [src]="trailerUrl" allowfullscreen></iframe>
+            </div>
+            <p class="mt-2 text-muted" *ngIf="getMainTrailer()">{{ getMainTrailer().name }}</p>
+          </div>
+
+          <!-- Diğer Videolar -->
+          <h5 class="mt-5 mb-3" *ngIf="videos.length > 0">Tüm Videolar</h5>
+          <div class="row video-grid">
+            <div class="col-md-6 col-lg-4 mb-4" *ngFor="let video of videos">
+              <div class="card h-100 video-card">
+                <div class="card-img-top video-thumbnail" (click)="openVideo(video)">
+                  <img [src]="getVideoThumbnail(video)" [alt]="video.name" class="img-fluid">
+                  <div class="play-button">
+                    <i class="bi bi-play-circle-fill"></i>
+                  </div>
+                  <span class="video-type badge" [ngClass]="{
+                    'bg-danger': video.type === 'Trailer',
+                    'bg-primary': video.type === 'Teaser',
+                    'bg-success': video.type === 'Clip',
+                    'bg-secondary': video.type !== 'Trailer' && video.type !== 'Teaser' && video.type !== 'Clip'
+                  }">{{ video.type }}</span>
+                </div>
+                <div class="card-body">
+                  <h6 class="card-title">{{ video.name }}</h6>
+                  <p class="card-text text-muted small">
+                    <i class="bi bi-calendar3 me-1"></i> {{ video.published_at | date:'dd MMM yyyy' }}
+                    <span class="mx-2">•</span>
+                    <i class="bi bi-display me-1"></i> {{ video.site }}
+                  </p>
+                  <div class="d-grid">
+                    <button class="btn btn-primary btn-sm" (click)="openVideo(video)">
+                      <i class="bi bi-play-fill me-1"></i> İzle
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seasons Tab (Only for TV Shows) -->
+        <div *ngSwitchCase="'seasons'">
+          <h4>Sezonlar</h4>
+
+          <div class="season-selector mb-4">
+            <div class="btn-group">
+              <button *ngFor="let season of seasons"
+                      class="btn"
+                      [class.btn-primary]="selectedSeason === season.season_number"
+                      [class.btn-outline-secondary]="selectedSeason !== season.season_number"
+                      (click)="changeSeason(season.season_number)">
+                Sezon {{ season.season_number }}
+              </button>
+            </div>
+          </div>
+
+          <div class="season-info mb-4" *ngIf="seasons.length > 0">
+            <div class="row">
+              <div class="col-md-3">
+                <img *ngIf="seasons[selectedSeason-1]?.poster_path"
+                     [src]="imageBaseUrl + 'w300' + seasons[selectedSeason-1].poster_path"
+                     class="img-fluid rounded"
+                     [alt]="'Sezon ' + selectedSeason">
+                <div *ngIf="!seasons[selectedSeason-1]?.poster_path" class="no-poster d-flex align-items-center justify-content-center">
+                  <span>Afiş Yok</span>
+                </div>
+              </div>
+              <div class="col-md-9">
+                <h5>{{ seasons[selectedSeason-1]?.name }}</h5>
+                <p class="text-muted">{{ seasons[selectedSeason-1]?.episode_count }} Bölüm • {{ formatDate(seasons[selectedSeason-1]?.air_date) }}</p>
+                <p>{{ seasons[selectedSeason-1]?.overview || 'Bu sezon için özet bulunmamaktadır.' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="episodes-list">
+            <h5>Bölümler</h5>
+            <div class="list-group">
+              <div class="list-group-item list-group-item-action" *ngFor="let episode of episodes">
+                <div class="row g-0">
+                  <div class="col-md-1 col-2 d-flex align-items-center justify-content-center">
+                    <span class="episode-number fw-bold">{{ episode.episode_number }}</span>
+                  </div>
+                  <div class="col-md-2 col-3" *ngIf="episode.still_path">
+                    <img [src]="imageBaseUrl + 'w300' + episode.still_path" class="img-fluid rounded" [alt]="episode.name">
+                  </div>
+                  <div [class.col-md-9]="episode.still_path" [class.col-md-11]="!episode.still_path" [class.col-10]="!episode.still_path" [class.col-7]="episode.still_path">
+                    <div class="ms-3">
+                      <div class="d-flex justify-content-between">
+                        <h6 class="mb-1">{{ episode.name }}</h6>
+                        <small class="text-muted">{{ formatDate(episode.air_date) }}</small>
+                      </div>
+                      <p class="mb-1 text-muted">{{ episode.overview || 'Bu bölüm için özet bulunmamaktadır.' }}</p>
+                      <small class="d-flex align-items-center">
+                        <i class="bi bi-star-fill text-warning me-1"></i>
+                        {{ episode.vote_average | number:'1.1-1' }}
+                        <span class="mx-2">•</span>
+                        <i class="bi bi-clock me-1"></i>
+                        {{ episode.runtime || '?' }} dk
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Similar Content Tab -->
+        <div *ngSwitchCase="'similar'">
+          <h4>Benzer {{ type === 'film' ? 'Filmler' : 'Diziler' }}</h4>
+          <div class="row">
+            <div class="col-md-4 col-lg-3 col-sm-6 mb-4" *ngFor="let item of similarContent">
+              <div class="card h-100">
+                <img [src]="item.poster_path ? (imageBaseUrl + 'w300' + item.poster_path) : 'assets/no-image.jpg'"
+                     class="card-img-top" [alt]="item.title || item.name">
+                <div class="card-body">
+                  <h5 class="card-title">{{ item.title || item.name }}</h5>
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted">{{ (item.release_date || item.first_air_date) | date:'yyyy' }}</span>
+                    <span class="badge bg-warning text-dark">{{ item.vote_average | number:'1.1-1' }}</span>
+                  </div>
+                  <a [routerLink]="['/detay', type, item.id]" class="btn btn-outline-primary btn-sm mt-2 w-100">Detaylar</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reviews Tab -->
+        <div *ngSwitchCase="'reviews'">
+          <h4>İncelemeler</h4>
+          <div class="reviews-list">
+            <div class="card mb-4" *ngFor="let review of reviews">
+              <div class="card-header d-flex align-items-center">
+                <div class="avatar me-3">
+                  <img [src]="review.author_details?.avatar_path ?
+                             (review.author_details.avatar_path.startsWith('/https') ?
+                             review.author_details.avatar_path.substring(1) :
+                             imageBaseUrl + 'w100' + review.author_details.avatar_path) :
+                             'assets/avatar-placeholder.jpg'"
+                       class="rounded-circle" width="40" height="40" [alt]="review.author">
+                </div>
+                <div>
+                  <h6 class="mb-0">{{ review.author }}</h6>
+                  <div class="text-muted small">
+                    <span *ngIf="review.author_details?.rating">
+                      <i class="bi bi-star-fill text-warning"></i> {{ review.author_details.rating }}
+                    </span>
+                    <span class="mx-2">•</span>
+                    {{ review.created_at | date:'dd MMM yyyy' }}
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                <p class="card-text review-content">{{ review.content }}</p>
+                <a [href]="review.url" target="_blank" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-link-45deg"></i> Orjinal İncelemeyi Görüntüle
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

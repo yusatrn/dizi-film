@@ -1,0 +1,30 @@
+.footer {
+  margin-top: auto;
+}
+
+.footer h5 {
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.footer ul li {
+  margin-bottom: 8px;
+}
+
+.footer ul li i {
+  margin-right: 8px;
+}
+
+.footer a {
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer a:hover {
+  color: #17a2b8 !important;
+}
+
+hr.bg-light {
+  opacity: 0.1;
+  margin: 20px 0;
+}

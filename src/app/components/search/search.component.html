@@ -1,0 +1,61 @@
+<div class="container">
+  <h1 class="page-title my-4">Arama Sonuçları: "{{ searchQuery }}"</h1>
+
+  <div *ngIf="isLoading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Yükleniyor...</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!isLoading && !error">
+    <div *ngIf="searchResults.length === 0" class="alert alert-info">
+      "{{ searchQuery }}" için sonuç bulunamadı.
+    </div>
+
+    <div class="row" *ngIf="searchResults.length > 0">
+      <div class="col-sm-6 col-md-4 col-lg-3 mb-4" *ngFor="let item of searchResults">
+        <div class="card search-card h-100">
+          <div class="media-type-badge">
+            {{ item.media_type === 'movie' ? 'Film' : 'Dizi' }}
+          </div>
+          <img [src]="imageBaseUrl + 'w500' + item.poster_path" class="card-img-top" [alt]="getTitle(item)"
+               *ngIf="item.poster_path; else noImage">
+          <ng-template #noImage>
+            <div class="no-image d-flex align-items-center justify-content-center bg-light">
+              <span>Görsel Yok</span>
+            </div>
+          </ng-template>
+          <div class="card-body">
+            <h5 class="card-title">{{ getTitle(item) }}</h5>
+            <div class="rating mb-2">
+              <span class="badge bg-warning text-dark">{{ item.vote_average | number:'1.1-1' }}</span>
+            </div>
+            <p class="card-text release-date">{{ getReleaseDate(item) | date:'dd.MM.yyyy' }}</p>
+            <a [routerLink]="getDetailUrl(item)" class="btn btn-primary">Detaylar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container d-flex justify-content-center my-4" *ngIf="searchResults.length > 0">
+      <button class="btn btn-outline-primary me-2"
+              [disabled]="currentPage === 1"
+              (click)="loadPreviousPage()">
+        <i class="bi bi-chevron-left"></i> Önceki
+      </button>
+      <span class="pagination-info align-self-center mx-3">
+        Sayfa {{ currentPage }} / {{ totalPages }}
+      </span>
+      <button class="btn btn-outline-primary ms-2"
+              [disabled]="currentPage === totalPages"
+              (click)="loadNextPage()">
+        Sonraki <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>

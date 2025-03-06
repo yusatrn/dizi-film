@@ -1,0 +1,75 @@
+<div class="container">
+  <section class="hero-section mb-5">
+    <div class="jumbotron text-center p-5 bg-dark text-white rounded">
+      <h1>Film ve Dizi Önerileri</h1>
+      <p class="lead">En popüler film ve dizileri keşfedin, yeni favorilerinizi bulun!</p>
+    </div>
+  </section>
+
+  <div *ngIf="isLoading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Yükleniyor...</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <section *ngIf="!isLoading && !error">
+    <h2 class="section-title">Popüler Filmler</h2>
+    <div class="row">
+      <div class="col-md-4 col-lg-2 mb-4" *ngFor="let movie of popularMovies">
+        <div class="card content-card h-100">
+          <img [src]="imageBaseUrl + 'w300' + movie.poster_path" class="card-img-top" [alt]="movie.title"
+               *ngIf="movie.poster_path; else noImage">
+          <ng-template #noImage>
+            <div class="no-image d-flex align-items-center justify-content-center bg-light">
+              <span>Görsel Yok</span>
+            </div>
+          </ng-template>
+          <div class="card-body">
+            <h5 class="card-title">{{ movie.title }}</h5>
+            <div class="rating mb-2">
+              <span class="badge bg-warning text-dark">{{ movie.vote_average | number:'1.1-1' }}</span>
+            </div>
+            <p class="card-text release-date">{{ movie.release_date | date:'yyyy' }}</p>
+            <a [routerLink]="['/detay', 'film', movie.id]" class="btn btn-sm btn-primary">Detaylar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title mt-5">Popüler Diziler</h2>
+    <div class="row">
+      <div class="col-md-4 col-lg-2 mb-4" *ngFor="let show of popularTvShows">
+        <div class="card content-card h-100">
+          <img [src]="imageBaseUrl + 'w300' + show.poster_path" class="card-img-top" [alt]="show.name"
+               *ngIf="show.poster_path; else noImage">
+          <ng-template #noImage>
+            <div class="no-image d-flex align-items-center justify-content-center bg-light">
+              <span>Görsel Yok</span>
+            </div>
+          </ng-template>
+          <div class="card-body">
+            <h5 class="card-title">{{ show.name }}</h5>
+            <div class="rating mb-2">
+              <span class="badge bg-warning text-dark">{{ show.vote_average | number:'1.1-1' }}</span>
+            </div>
+            <p class="card-text release-date">{{ show.first_air_date | date:'yyyy' }}</p>
+            <a [routerLink]="['/detay', 'dizi', show.id]" class="btn btn-sm btn-primary">Detaylar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-md-6 text-center mb-3">
+        <a routerLink="/filmler" class="btn btn-outline-primary">Tüm Filmleri Gör</a>
+      </div>
+      <div class="col-md-6 text-center">
+        <a routerLink="/diziler" class="btn btn-outline-primary">Tüm Dizileri Gör</a>
+      </div>
+    </div>
+  </section>
+</div>

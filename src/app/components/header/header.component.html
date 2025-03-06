@@ -1,0 +1,27 @@
+<header class="header">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" routerLink="/">FilmDiziÖneri</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Ana Sayfa</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/filmler" routerLinkActive="active">Filmler</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/diziler" routerLinkActive="active">Diziler</a>
+          </li>
+        </ul>
+        <form class="d-flex" (ngSubmit)="onSearch()">
+          <input class="form-control me-2" type="search" placeholder="Film veya Dizi Ara..." [(ngModel)]="searchQuery" name="search">
+          <button class="btn btn-outline-light" type="submit">Ara</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+</header>

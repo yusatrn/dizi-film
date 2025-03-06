@@ -1,0 +1,93 @@
+<div class="container">
+  <div class="row mb-4">
+    <div class="col">
+      <h1 class="page-title">Filmler</h1>
+      <p class="text-muted">Popüler filmleri keşfedin ve detaylarını inceleyin</p>
+    </div>
+  </div>
+
+  <!-- Genre Filter -->
+  <div class="genres-filter mb-4">
+    <div class="d-flex flex-wrap align-items-center">
+      <h5 class="me-3 mb-2">Türler:</h5>
+      <button class="btn btn-sm mb-2 me-2"
+              [ngClass]="{'btn-primary': selectedGenre === null, 'btn-outline-secondary': selectedGenre !== null}"
+              (click)="filterByGenre(null)">
+        Tümü
+      </button>
+      <button *ngFor="let genre of genres"
+              class="btn btn-sm mb-2 me-2"
+              [ngClass]="{'btn-primary': selectedGenre === genre.id, 'btn-outline-secondary': selectedGenre !== genre.id}"
+              (click)="filterByGenre(genre.id)">
+        {{ genre.name }}
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Yükleniyor...</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!isLoading && !error && movies.length === 0" class="alert alert-info">
+    Bu kriterlere uygun film bulunamadı.
+  </div>
+
+  <div *ngIf="!isLoading && !error && movies.length > 0">
+    <div class="row">
+      <div class="col-sm-6 col-md-4 col-lg-3 mb-4" *ngFor="let movie of movies">
+        <div class="card movie-card h-100">
+          <div class="card-rating-badge">
+            <span [ngClass]="{
+              'text-danger': movie.vote_average < 5,
+              'text-warning': movie.vote_average >= 5 && movie.vote_average < 7,
+              'text-success': movie.vote_average >= 7
+            }">
+              <i class="bi bi-star-fill"></i> {{ movie.vote_average | number:'1.1-1' }}
+            </span>
+          </div>
+          <img [src]="imageBaseUrl + 'w500' + movie.poster_path" class="card-img-top" [alt]="movie.title"
+               *ngIf="movie.poster_path; else noImage">
+          <ng-template #noImage>
+            <div class="no-image d-flex align-items-center justify-content-center bg-light">
+              <span>Görsel Yok</span>
+            </div>
+          </ng-template>
+          <div class="card-body">
+            <h5 class="card-title" [title]="movie.title">{{ movie.title }}</h5>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-muted">{{ getYear(movie.release_date) }}</span>
+              <span class="badge bg-light text-dark border">
+                <i class="bi bi-hand-thumbs-up"></i> {{ movie.vote_count }}
+              </span>
+            </div>
+            <p class="card-text movie-overview">{{ movie.overview | slice:0:100 }}{{ movie.overview.length > 100 ? '...' : '' }}</p>
+            <a [routerLink]="['/detay', 'film', movie.id]" class="btn btn-primary w-100">Detaylar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container d-flex justify-content-center my-4">
+      <button class="btn btn-outline-primary me-2"
+              [disabled]="currentPage === 1"
+              (click)="loadPreviousPage()">
+        <i class="bi bi-chevron-left"></i> Önceki
+      </button>
+      <span class="pagination-info align-self-center mx-3">
+        Sayfa {{ currentPage }} / {{ totalPages }}
+      </span>
+      <button class="btn btn-outline-primary ms-2"
+              [disabled]="currentPage === totalPages"
+              (click)="loadNextPage()">
+        Sonraki <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>

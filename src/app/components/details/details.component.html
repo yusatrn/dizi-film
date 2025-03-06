@@ -311,10 +311,10 @@
             <div class="list-group">
               <div class="list-group-item list-group-item-action" *ngFor="let episode of episodes">
                 <div class="row g-0">
-                  <div class="col-md-1 col-2 d-flex align-items-center justify-content-center">
+                  <div class="col-md-1 col-2 d-flex align-items-center justify-content-center" *ngIf="!episode.still_path">
                     <span class="episode-number fw-bold">{{ episode.episode_number }}</span>
                   </div>
-                  <div class="col-md-2 col-3" *ngIf="episode.still_path">
+                  <div class="col-md-3 col-3" *ngIf="episode.still_path">
                     <img [src]="imageBaseUrl + 'w300' + episode.still_path" class="img-fluid rounded" [alt]="episode.name">
                   </div>
                   <div [class.col-md-9]="episode.still_path" [class.col-md-11]="!episode.still_path" [class.col-10]="!episode.still_path" [class.col-7]="episode.still_path">

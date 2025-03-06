@@ -27,7 +27,6 @@ export class ContentService {
     return this.apiService.getTvDetails(id);
   }
 
-  // Yeni eklenen fonksiyonlar
   getMovieCredits(id: number): Observable<any> {
     return this.apiService.getMovieCredits(id);
   }

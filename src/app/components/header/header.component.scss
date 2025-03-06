@@ -1,19 +1,97 @@
-.navbar {
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.search-container {
+  min-width: 300px;
 }
 
-.navbar-brand {
-  font-weight: 700;
+.search-results-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: #fff;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin-top: 2px;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
-.active {
+.search-results-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.search-result-item {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+
+  &:hover, &.selected {
+    background-color: #f8f9fa;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.search-result-content {
+  display: flex;
+  align-items: center;
+}
+
+.search-result-image {
+  width: 45px;
+  height: 68px;
+  object-fit: cover;
+  border-radius: 2px;
+  margin-right: 10px;
+}
+
+.no-image {
+  width: 45px;
+  height: 68px;
+  background-color: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  border-radius: 2px;
+
+  i {
+    color: #aaa;
+    font-size: 1.5rem;
+  }
+}
+
+.search-result-info {
+  flex: 1;
+}
+
+.search-result-title {
   font-weight: 500;
+  margin-bottom: 4px;
 }
 
-.form-control {
-  border-radius: 20px;
+.search-result-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
 }
 
-.btn-outline-light {
-  border-radius: 20px;
+.search-result-year {
+  color: #6c757d;
+}
+
+.search-result-footer {
+  padding: 8px;
+  background-color: #f8f9fa;
+  text-align: center;
+}
+
+.no-results {
+  padding: 15px;
+  text-align: center;
 }

@@ -1,0 +1,125 @@
+.search-title {
+  font-weight: 600;
+
+  .search-query {
+    color: #007bff;
+  }
+}
+
+.search-meta {
+  color: #6c757d;
+  margin-bottom: 0;
+}
+
+.search-form-mini {
+  width: 300px;
+}
+
+.result-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.125);
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .overview {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    max-height: 4.5em;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+
+  .result-poster {
+    height: 300px;
+    object-fit: cover;
+  }
+
+  .card-footer {
+    padding-top: 0;
+  }
+
+  .rating {
+    font-weight: 500;
+  }
+}
+
+.media-type-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+
+  &.movie {
+    background-color: rgba(13, 110, 253, 0.9);
+    color: #fff;
+  }
+
+  &.tv {
+    background-color: rgba(25, 135, 84, 0.9);
+    color: #fff;
+  }
+}
+
+.no-results {
+  padding: 30px 0;
+
+  i {
+    opacity: 0.5;
+  }
+
+  h2 {
+    margin-bottom: 15px;
+  }
+}
+
+// Pagination için bir helper fonksiyon
+:host ::ng-deep {
+  .pagination {
+    .page-item.active .page-link {
+      background-color: #007bff;
+      border-color: #007bff;
+    }
+
+    .page-link {
+      color: #007bff;
+    }
+  }
+}
+
+@media (max-width: 767.98px) {
+  .search-form-mini {
+    width: 200px;
+  }
+
+  .result-card {
+    .result-poster {
+      height: 200px;
+    }
+  }
+}
+
+@media (max-width: 575.98px) {
+  .search-form-mini {
+    width: 100%;
+    margin-top: 15px;
+  }
+}

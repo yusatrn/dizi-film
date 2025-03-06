@@ -21,7 +21,7 @@ export const routes: Routes = [
   },
   {
     path: 'arama',
-    loadComponent: () => import('./components/search/search.component').then(c => c.SearchComponent)
+    loadComponent: () => import('./components/search-results/search-results.component').then(c => c.SearchResultsComponent)
   },
 
   { path: 'oyuncu/:id', component: PersonDetailsComponent },

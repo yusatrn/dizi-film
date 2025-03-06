@@ -1,61 +1,110 @@
-<div class="container">
-  <h1 class="page-title my-4">Arama Sonuçları: "{{ searchQuery }}"</h1>
+<div class="search-container">
+  <form (ngSubmit)="onSearch($event)" class="search-form">
+    <div class="search-input-group">
+      <!-- Search icon -->
+      <div class="search-icon">
+        <i class="bi bi-search"></i>
+      </div>
 
-  <div *ngIf="isLoading" class="text-center my-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Yükleniyor...</span>
-    </div>
-  </div>
+      <!-- Input field -->
+      <input
+        #searchInput
+        type="text"
+        class="search-input"
+        [(ngModel)]="searchQuery"
+        name="searchQuery"
+        placeholder="Film veya dizi ara..."
+        (input)="onInput()"
+        (focus)="onFocus()"
+        (keydown)="handleKeyDown($event)"
+        autocomplete="off"
+      >
 
-  <div *ngIf="error" class="alert alert-danger">
-    {{ error }}
-  </div>
-
-  <div *ngIf="!isLoading && !error">
-    <div *ngIf="searchResults.length === 0" class="alert alert-info">
-      "{{ searchQuery }}" için sonuç bulunamadı.
-    </div>
-
-    <div class="row" *ngIf="searchResults.length > 0">
-      <div class="col-sm-6 col-md-4 col-lg-3 mb-4" *ngFor="let item of searchResults">
-        <div class="card search-card h-100">
-          <div class="media-type-badge">
-            {{ item.media_type === 'movie' ? 'Film' : 'Dizi' }}
-          </div>
-          <img [src]="imageBaseUrl + 'w500' + item.poster_path" class="card-img-top" [alt]="getTitle(item)"
-               *ngIf="item.poster_path; else noImage">
-          <ng-template #noImage>
-            <div class="no-image d-flex align-items-center justify-content-center bg-light">
-              <span>Görsel Yok</span>
-            </div>
-          </ng-template>
-          <div class="card-body">
-            <h5 class="card-title">{{ getTitle(item) }}</h5>
-            <div class="rating mb-2">
-              <span class="badge bg-warning text-dark">{{ item.vote_average | number:'1.1-1' }}</span>
-            </div>
-            <p class="card-text release-date">{{ getReleaseDate(item) | date:'dd.MM.yyyy' }}</p>
-            <a [routerLink]="getDetailUrl(item)" class="btn btn-primary">Detaylar</a>
-          </div>
+      <!-- Loading indicator -->
+      <div *ngIf="isLoading" class="search-loader">
+        <div class="spinner-border spinner-border-sm" role="status">
+          <span class="visually-hidden">Aranıyor...</span>
         </div>
       </div>
+
+      <!-- Clear button -->
+      <button
+        *ngIf="searchQuery.length > 0"
+        type="button"
+        class="search-clear-btn"
+        (click)="clearSearch()">
+        <i class="bi bi-x-circle-fill"></i>
+      </button>
+
+      <!-- Search button -->
+      <button type="submit" class="search-submit-btn">
+        <i class="bi bi-search"></i> Ara
+      </button>
     </div>
 
-    <!-- Pagination -->
-    <div class="pagination-container d-flex justify-content-center my-4" *ngIf="searchResults.length > 0">
-      <button class="btn btn-outline-primary me-2"
-              [disabled]="currentPage === 1"
-              (click)="loadPreviousPage()">
-        <i class="bi bi-chevron-left"></i> Önceki
-      </button>
-      <span class="pagination-info align-self-center mx-3">
-        Sayfa {{ currentPage }} / {{ totalPages }}
-      </span>
-      <button class="btn btn-outline-primary ms-2"
-              [disabled]="currentPage === totalPages"
-              (click)="loadNextPage()">
-        Sonraki <i class="bi bi-chevron-right"></i>
-      </button>
+    <!-- Results dropdown -->
+    <div class="search-results-container" *ngIf="showResults || showHistory">
+      <!-- Search results -->
+      <ul class="search-results-list" *ngIf="showResults">
+        <ng-container *ngIf="searchResults.length > 0; else noResults">
+          <li *ngFor="let result of searchResults; let i = index"
+              [class.selected]="i === selectedIndex"
+              (click)="selectResult(result)"
+              class="search-result-item">
+
+            <div class="result-img">
+              <img [src]="result.poster_path ? (imageBaseUrl + result.poster_path) : getFallbackImage(result.media_type)"
+                   [alt]="result.title || result.name"
+                   class="poster-thumbnail">
+            </div>
+
+            <div class="result-info">
+              <div class="result-title">{{ result.title || result.name }}</div>
+              <div class="result-meta">
+                <span class="result-type" [class.movie]="result.media_type === 'movie'" [class.tv]="result.media_type === 'tv'">
+                  {{ result.media_type === 'movie' ? 'Film' : 'Dizi' }}
+                </span>
+                <span class="result-year" *ngIf="result.release_date || result.first_air_date">
+                  {{ (result.release_date || result.first_air_date) | date:'yyyy' }}
+                </span>
+              </div>
+            </div>
+          </li>
+
+          <li class="search-all-results">
+            <button type="button" class="btn btn-link" (click)="onSearch()">
+              <i class="bi bi-list-ul me-1"></i> Tüm sonuçları göster
+            </button>
+          </li>
+        </ng-container>
+
+        <ng-template #noResults>
+          <li class="search-no-results">
+            <div class="no-results-message">
+              <i class="bi bi-emoji-frown me-2"></i>
+              <span>Sonuç bulunamadı</span>
+            </div>
+          </li>
+        </ng-template>
+      </ul>
+
+      <!-- Search history -->
+      <ul class="search-history-list" *ngIf="showHistory">
+        <li class="search-history-header">
+          <span>Son Aramalar</span>
+          <button type="button" class="btn btn-sm btn-link" (click)="clearHistory()">
+            <i class="bi bi-trash3 me-1"></i>Temizle
+          </button>
+        </li>
+
+        <li *ngFor="let term of searchHistory; let i = index"
+            [class.selected]="i === selectedIndex"
+            (click)="selectHistoryItem(term)"
+            class="search-history-item">
+          <i class="bi bi-clock-history me-2"></i>
+          <span>{{ term }}</span>
+        </li>
+      </ul>
     </div>
-  </div>
+  </form>
 </div>

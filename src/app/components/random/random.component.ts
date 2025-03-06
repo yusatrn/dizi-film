@@ -11,7 +11,7 @@ import {DatePipe, DecimalPipe, NgIf} from '@angular/common';
   imports: [
     DatePipe,
     DecimalPipe,
-    NgIf
+    NgIf,
   ],
   templateUrl: './random.component.html',
   styleUrl: './random.component.scss'

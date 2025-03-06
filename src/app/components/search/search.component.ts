@@ -1,85 +1,172 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink, ActivatedRoute } from '@angular/router';
-import { ContentService } from '../../services/content.service';
-import { environment } from '../../../environments/environment';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy, AfterViewInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { fromEvent, Subscription } from 'rxjs';
+import { ApiService } from '../../services/api.service';
+import {DatePipe, NgForOf, NgIf} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-search',
-  templateUrl: './search.component.html',
-  styleUrls: ['./search.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterLink]
+  templateUrl: './search.component.html',
+  imports: [
+    NgForOf,
+    NgIf,
+    FormsModule,
+    DatePipe
+  ],
+  styleUrls: ['./search.component.scss']
 })
-export class SearchComponent implements OnInit {
-  searchResults: any[] = [];
+export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('searchInput') searchInput!: ElementRef;
+
   searchQuery: string = '';
-  imageBaseUrl: string = environment.imageBaseUrl;
-  isLoading: boolean = true;
-  error: string | null = null;
-  currentPage: number = 1;
-  totalPages: number = 1;
+  searchResults: any[] = [];
+  searchHistory: string[] = [];
+  isLoading: boolean = false;
+  showResults: boolean = false;
+  showHistory: boolean = false;
+  selectedIndex: number = -1;
+  subscription: Subscription = new Subscription();
+  imageBaseUrl: string = 'https://image.tmdb.org/t/p/w92';
 
   constructor(
-    private contentService: ContentService,
-    private route: ActivatedRoute
-  ) { }
+    private apiService: ApiService, // Bu sefer SearchService değil, ApiService kullanıyoruz
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      if (params['q']) {
-        this.searchQuery = params['q'];
-        this.search();
-      }
-    });
-  }
+    this.searchHistory = this.apiService.getSearchHistory();
 
-  search(): void {
-    this.isLoading = true;
-    this.error = null;
-
-    this.contentService.searchContent(this.searchQuery, this.currentPage).subscribe({
-      next: (data) => {
-        this.searchResults = data.results.filter((item: any) => {
-          return item.media_type === 'movie' || item.media_type === 'tv';
-        });
-        this.totalPages = data.total_pages;
+    // Arama sonuçlarını dinle
+    this.subscription.add(
+      this.apiService.searchResults$.subscribe(response => {
+        this.searchResults = response.results;
         this.isLoading = false;
-      },
-      error: (err) => {
-        this.error = 'Arama yapılırken bir hata oluştu';
-        this.isLoading = false;
-        console.error(err);
-      }
-    });
+        // Sonuç varsa dropdown'ı göster
+        this.showResults = this.searchResults.length > 0 && this.searchQuery.trim().length > 0;
+        this.selectedIndex = -1;
+      })
+    );
   }
 
-  getTitle(item: any): string {
-    return item.media_type === 'movie' ? item.title : item.name;
+  ngAfterViewInit(): void {
+    // Döküman tıklamalarını dinle - dışarı tıklandığında dropdown'ı kapat
+    this.subscription.add(
+      fromEvent(document, 'click').subscribe((event: Event) => {
+        if (this.searchInput && !this.searchInput.nativeElement.contains(event.target)) {
+          this.showResults = false;
+          this.showHistory = false;
+        }
+      })
+    );
   }
 
-  getReleaseDate(item: any): string {
-    return item.media_type === 'movie' ? item.release_date : item.first_air_date;
+  onFocus(): void {
+    // Geçmiş aramaları göster
+    if (this.searchQuery.trim() === '') {
+      this.showHistory = this.searchHistory.length > 0;
+      this.showResults = false;
+    } else {
+      this.showResults = this.searchResults.length > 0;
+    }
   }
 
-  getDetailUrl(item: any): string {
+  onSearch(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+    }
+
+    if (this.searchQuery.trim()) {
+      // Arama geçmişine ekle
+      this.apiService.addToSearchHistory(this.searchQuery);
+      this.searchHistory = this.apiService.getSearchHistory();
+
+      // Sonuç sayfasına yönlendir
+      this.router.navigate(['/arama'], {
+        queryParams: { query: this.searchQuery }
+      });
+
+      // Modal veya dropdown'ları kapat
+      this.showResults = false;
+      this.showHistory = false;
+    }
+  }
+
+  onInput(): void {
+    if (this.searchQuery.trim()) {
+      this.isLoading = true;
+      this.showHistory = false;
+      this.apiService.search(this.searchQuery);
+    } else {
+      this.searchResults = [];
+      this.showResults = false;
+      this.showHistory = this.searchHistory.length > 0;
+    }
+  }
+
+  selectResult(item: any): void {
     const type = item.media_type === 'movie' ? 'film' : 'dizi';
-    return `/detay/${type}/${item.id}`;
+    this.router.navigate(['/detay', type, item.id]);
+
+    // Arama geçmişine ekle
+    this.apiService.addToSearchHistory(item.title || item.name);
+    this.searchHistory = this.apiService.getSearchHistory();
+
+    // Temizle
+    this.clearSearch();
   }
 
-  loadPreviousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.search();
-      window.scrollTo(0, 0);
+  selectHistoryItem(term: string): void {
+    this.searchQuery = term;
+    this.onSearch();
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.showResults = false;
+    this.showHistory = false;
+    this.searchResults = [];
+  }
+
+  clearHistory(): void {
+    this.apiService.clearSearchHistory();
+    this.searchHistory = [];
+    this.showHistory = false;
+  }
+
+  // Klavye navigasyonu için
+  handleKeyDown(event: KeyboardEvent): void {
+    if (this.showResults && this.searchResults.length > 0) {
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        this.selectedIndex = Math.min(this.selectedIndex + 1, this.searchResults.length - 1);
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        this.selectedIndex = Math.max(this.selectedIndex - 1, -1);
+      } else if (event.key === 'Enter' && this.selectedIndex > -1) {
+        event.preventDefault();
+        this.selectResult(this.searchResults[this.selectedIndex]);
+      }
+    } else if (this.showHistory && this.searchHistory.length > 0) {
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        this.selectedIndex = Math.min(this.selectedIndex + 1, this.searchHistory.length - 1);
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        this.selectedIndex = Math.max(this.selectedIndex - 1, -1);
+      } else if (event.key === 'Enter' && this.selectedIndex > -1) {
+        event.preventDefault();
+        this.selectHistoryItem(this.searchHistory[this.selectedIndex]);
+      }
     }
   }
 
-  loadNextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.search();
-      window.scrollTo(0, 0);
-    }
+  getFallbackImage(mediaType: string): string {
+    return mediaType === 'movie' ? 'assets/movie-placeholder.jpg' : 'assets/tv-placeholder.jpg';
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 }

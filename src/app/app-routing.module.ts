@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import {RandomComponent} from './components/random/random.component';
 
 export const routes: Routes = [
   {
@@ -21,6 +22,11 @@ export const routes: Routes = [
     path: 'arama',
     loadComponent: () => import('./components/search/search.component').then(c => c.SearchComponent)
   },
+  { path: 'rastgele', component: RandomComponent
+
+  },
+
+
   {
     path: '**',
     redirectTo: ''

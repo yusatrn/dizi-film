@@ -84,4 +84,5 @@ export class ApiService {
   getTvShowsByGenre(genreId: number, page: number = 1): Observable<any> {
     return this.http.get(`${this.baseUrl}/discover/tv?api_key=${this.apiKey}&language=tr-TR&with_genres=${genreId}&page=${page}&sort_by=popularity.desc`);
   }
+
 }

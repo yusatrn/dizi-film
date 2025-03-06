@@ -7,14 +7,14 @@ import {DatePipe, DecimalPipe, NgIf} from '@angular/common';
 
 @Component({
   selector: 'app-random',
-  templateUrl: './random.component.html',
   standalone: true,
   imports: [
     DatePipe,
     DecimalPipe,
     NgIf
   ],
-  styleUrls: ['./random.component.scss']
+  templateUrl: './random.component.html',
+  styleUrl: './random.component.scss'
 })
 export class RandomComponent implements OnInit {
   randomMovie: any = null;
@@ -39,7 +39,6 @@ export class RandomComponent implements OnInit {
     this.loading = true;
     this.error = false;
 
-    // Get random movie
     this.apiService.getPopularMovies(Math.floor(Math.random() * 5) + 1) // Random page between 1-5
       .pipe(
         finalize(() => {

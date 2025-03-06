@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import {RandomComponent} from './components/random/random.component';
+import {PersonDetailsComponent} from './components/person-details/person-details.component';
 
 export const routes: Routes = [
   {
@@ -22,6 +23,9 @@ export const routes: Routes = [
     path: 'arama',
     loadComponent: () => import('./components/search/search.component').then(c => c.SearchComponent)
   },
+
+  { path: 'oyuncu/:id', component: PersonDetailsComponent },
+
   { path: 'rastgele', component: RandomComponent
 
   },

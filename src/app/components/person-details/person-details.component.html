@@ -1,0 +1,247 @@
+<div class="container-fluid py-5 person-details-container">
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Yükleniyor...</span>
+    </div>
+    <p class="mt-3">Oyuncu bilgileri yükleniyor...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="alert alert-danger text-center" role="alert">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    Oyuncu bilgileri yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.
+  </div>
+
+  <!-- Person Details Content -->
+  <div *ngIf="!loading && !error && personDetails" class="container person-content">
+    <!-- Back Button -->
+    <div class="mb-4">
+      <button class="btn btn-outline-secondary" (click)="goBack()">
+        <i class="bi bi-arrow-left me-2"></i>Geri Dön
+      </button>
+    </div>
+
+    <div class="row">
+      <!-- Left Column - Profile and Info -->
+      <div class="col-md-3 mb-4">
+        <div class="profile-sidebar">
+          <!-- Profile Image -->
+          <div class="profile-image-container mb-4">
+            <img [src]="personDetails.profile_path ? (imageBaseUrl + 'w500' + personDetails.profile_path) : 'assets/person-placeholder.jpg'"
+                 [alt]="personDetails.name"
+                 class="profile-image img-fluid">
+          </div>
+
+          <!-- Personal Info -->
+          <div class="personal-info">
+            <h3>Kişisel Bilgiler</h3>
+
+            <div class="info-item">
+              <h6>Meslek</h6>
+              <p>{{ personDetails.known_for_department || 'Belirtilmemiş' }}</p>
+            </div>
+
+            <div class="info-item">
+              <h6>Doğum Tarihi</h6>
+              <p>
+                {{ formatDate(personDetails.birthday) }}
+                <span *ngIf="personDetails.birthday" class="text-muted">
+                  ({{ calculateAge(personDetails.birthday, personDetails.deathday) }} yaşında)
+                </span>
+              </p>
+            </div>
+
+            <div class="info-item" *ngIf="personDetails.deathday">
+              <h6>Ölüm Tarihi</h6>
+              <p>{{ formatDate(personDetails.deathday) }}</p>
+            </div>
+
+            <div class="info-item">
+              <h6>Doğum Yeri</h6>
+              <p>{{ personDetails.place_of_birth || 'Belirtilmemiş' }}</p>
+            </div>
+
+            <div class="info-item" *ngIf="personDetails.gender">
+              <h6>Cinsiyet</h6>
+              <p>{{ personDetails.gender === 1 ? 'Kadın' : personDetails.gender === 2 ? 'Erkek' : 'Belirtilmemiş' }}</p>
+            </div>
+
+            <div class="info-item" *ngIf="imdbLink">
+              <a [href]="imdbLink" target="_blank" rel="noopener noreferrer" class="btn btn-warning btn-sm">
+                <i class="bi bi-star-fill me-2"></i>IMDb Profili
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column - Main Content -->
+      <div class="col-md-9">
+        <div class="main-content">
+          <!-- Name and Navigation -->
+          <h1 class="display-4 mb-4">{{ personDetails.name }}</h1>
+
+          <!-- Nav Tabs -->
+          <ul class="nav nav-tabs mb-4">
+            <li class="nav-item">
+              <a class="nav-link" [class.active]="activeTab === 'biography'" (click)="setActiveTab('biography')">
+                <i class="bi bi-journal-text me-1"></i>Biyografi
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [class.active]="activeTab === 'knownFor'" (click)="setActiveTab('knownFor')">
+                <i class="bi bi-award me-1"></i>Bilinen Yapımlar
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [class.active]="activeTab === 'filmography'" (click)="setActiveTab('filmography')">
+                <i class="bi bi-camera-reels me-1"></i>Filmografi
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [class.active]="activeTab === 'photos'" (click)="setActiveTab('photos')">
+                <i class="bi bi-image me-1"></i>Fotoğraflar
+              </a>
+            </li>
+          </ul>
+
+          <!-- Tab Content -->
+          <div class="tab-content">
+            <!-- Biography Tab -->
+            <div *ngIf="activeTab === 'biography'" class="tab-pane fade show active">
+              <div class="biography-content">
+                <h4><i class="bi bi-journal-text me-2"></i>Biyografi</h4>
+
+                <div *ngIf="personDetails.biography" class="biography-text">
+                  <p>{{ personDetails.biography }}</p>
+                </div>
+
+                <div *ngIf="!personDetails.biography" class="alert alert-light text-center">
+                  <p>Bu oyuncu için biyografi bilgisi bulunmamaktadır.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Known For Tab -->
+            <div *ngIf="activeTab === 'knownFor'" class="tab-pane fade show active">
+              <h4><i class="bi bi-award me-2"></i>Bilinen Yapımlar</h4>
+
+              <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+                <div *ngFor="let credit of getKnownForCredits()" class="col">
+                  <div class="card h-100 credit-card">
+                    <img [src]="credit.poster_path ? (imageBaseUrl + 'w500' + credit.poster_path) : 'assets/no-image.jpg'"
+                         [alt]="credit.title || credit.name"
+                         class="card-img-top credit-poster">
+                    <div class="card-body">
+                      <h5 class="card-title">{{ credit.title || credit.name }}</h5>
+                      <p class="card-text character-name">
+                        <span *ngIf="credit.character">as {{ credit.character }}</span>
+                        <span *ngIf="!credit.character">Rol belirtilmemiş</span>
+                      </p>
+                      <p class="card-text">
+                        <small class="text-muted">{{ credit.release_date || credit.first_air_date | date:'yyyy' || 'Tarih belirtilmemiş' }}</small>
+                      </p>
+                    </div>
+                    <div class="card-footer bg-white border-0">
+                      <button class="btn btn-outline-primary w-100"
+                              (click)="navigateToDetails(credit.media_type, credit.id)">
+                        <i class="bi bi-info-circle me-1"></i>Detayları Gör
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Filmography Tab -->
+            <div *ngIf="activeTab === 'filmography'" class="tab-pane fade show active">
+              <h4><i class="bi bi-camera-reels me-2"></i>Filmografi</h4>
+
+              <!-- Movies Section -->
+              <div class="mb-5">
+                <h5 class="mb-3">Filmler</h5>
+
+                <div *ngIf="getMovieCredits().length === 0" class="alert alert-light">
+                  Film kredisi bulunmamaktadır.
+                </div>
+
+                <div *ngIf="getMovieCredits().length > 0" class="list-group">
+                  <a *ngFor="let movie of getMovieCredits()"
+                     class="list-group-item list-group-item-action filmography-item"
+                     (click)="navigateToDetails('movie', movie.id)">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <h6 class="mb-1">{{ movie.title }}</h6>
+                        <p class="mb-0 text-muted small">
+                          <span *ngIf="movie.character">Rol: {{ movie.character }}</span>
+                          <span *ngIf="!movie.character">Rol belirtilmemiş</span>
+                        </p>
+                      </div>
+                      <div class="text-end">
+                        <span class="badge bg-light text-dark">
+                          {{ movie.release_date | date:'yyyy' || 'Tarih belirtilmemiş' }}
+                        </span>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              </div>
+
+              <!-- TV Shows Section -->
+              <div>
+                <h5 class="mb-3">Diziler</h5>
+
+                <div *ngIf="getTVCredits().length === 0" class="alert alert-light">
+                  Dizi kredisi bulunmamaktadır.
+                </div>
+
+                <div *ngIf="getTVCredits().length > 0" class="list-group">
+                  <a *ngFor="let tv of getTVCredits()"
+                     class="list-group-item list-group-item-action filmography-item"
+                     (click)="navigateToDetails('tv', tv.id)">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <h6 class="mb-1">{{ tv.name }}</h6>
+                        <p class="mb-0 text-muted small">
+                          <span *ngIf="tv.character">Rol: {{ tv.character }}</span>
+                          <span *ngIf="!tv.character">Rol belirtilmemiş</span>
+                        </p>
+                      </div>
+                      <div class="text-end">
+                        <span class="badge bg-light text-dark">
+                          {{ tv.first_air_date | date:'yyyy' || 'Tarih belirtilmemiş' }}
+                        </span>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Photos Tab -->
+            <div *ngIf="activeTab === 'photos'" class="tab-pane fade show active">
+              <h4><i class="bi bi-image me-2"></i>Fotoğraflar</h4>
+
+              <div *ngIf="!personImages || !personImages.profiles || personImages.profiles.length === 0"
+                   class="alert alert-light text-center">
+                Bu oyuncu için fotoğraf bulunmamaktadır.
+              </div>
+
+              <div *ngIf="personImages && personImages.profiles && personImages.profiles.length > 0"
+                   class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-3">
+                <div *ngFor="let image of personImages.profiles" class="col">
+                  <div class="photo-card">
+                    <img [src]="imageBaseUrl + 'w500' + image.file_path"
+                         [alt]="personDetails.name"
+                         class="img-fluid rounded photo-image">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {CommonModule} from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ContentService } from '../../services/content.service';
 import { Movie } from '../../models/movie';
@@ -112,3 +112,7 @@ export class MovieListComponent implements OnInit {
     return new Date(dateString).getFullYear().toString();
   }
 }
+
+
+
+

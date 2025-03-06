@@ -84,5 +84,15 @@ export class ApiService {
   getTvShowsByGenre(genreId: number, page: number = 1): Observable<any> {
     return this.http.get(`${this.baseUrl}/discover/tv?api_key=${this.apiKey}&language=tr-TR&with_genres=${genreId}&page=${page}&sort_by=popularity.desc`);
   }
+  getPersonDetails(personId: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/person/${personId}?api_key=${this.apiKey}&language=tr-TR`);
+  }
 
+  getPersonCredits(personId: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/person/${personId}/combined_credits?api_key=${this.apiKey}&language=tr-TR`);
+  }
+
+  getPersonImages(personId: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/person/${personId}/images?api_key=${this.apiKey}`);
+  }
 }

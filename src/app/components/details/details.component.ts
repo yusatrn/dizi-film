@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ContentService } from '../../services/content.service';
 import { Movie } from '../../models/movie';
@@ -44,8 +44,12 @@ export class DetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private contentService: ContentService,
     private sanitizer: DomSanitizer,
-    private location: Location
-  ) { }
+    private location: Location,
+    private router: Router,
+
+
+) { }
+
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -342,6 +346,9 @@ export class DetailsComponent implements OnInit {
     return this.content.production_companies;
   }
 
+  navigateToActor(actorId: number): void {
+    this.router.navigate(['/oyuncu', actorId]);
+  }
 
   playTrailer(): void {
     this.setActiveTab('videos');

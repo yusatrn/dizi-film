@@ -1,0 +1,210 @@
+@mixin text-overflow-control {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.person-details-container {
+  min-height: calc(100vh - 60px);
+  background-color: #f8f9fa;
+}
+
+.person-content {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+}
+
+// Profile sidebar styles
+.profile-sidebar {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+
+  .profile-image-container {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+    .profile-image {
+      width: 100%;
+      border-radius: 8px;
+    }
+  }
+
+  .personal-info {
+    h3 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .info-item {
+      margin-bottom: 15px;
+
+      h6 {
+        color: #6c757d;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+      }
+
+      p {
+        margin-bottom: 0;
+        @include text-overflow-control;
+      }
+    }
+  }
+}
+
+// Main content styles
+.main-content {
+  h1 {
+    @include text-overflow-control;
+  }
+
+  .nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+
+    .nav-link {
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: #495057;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      margin-right: 1rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+
+      &:hover:not(.active) {
+        border-bottom-color: #adb5bd;
+      }
+
+      &.active {
+        color: #007bff;
+        background-color: transparent;
+        border-bottom-color: #007bff;
+      }
+    }
+  }
+
+  // Tab content styles
+  h4 {
+    color: #343a40;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .biography-text {
+    font-size: 1rem;
+    line-height: 1.8;
+    @include text-overflow-control;
+
+    p {
+      margin-bottom: 1rem;
+    }
+  }
+
+  // Known For Credits
+  .credit-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-radius: 8px;
+    overflow: hidden;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .credit-poster {
+      height: 280px;
+      object-fit: cover;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      @include text-overflow-control;
+    }
+
+    .character-name {
+      font-style: italic;
+      color: #6c757d;
+    }
+  }
+
+  // Filmography
+  .filmography-item {
+    transition: background-color 0.2s;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #f8f9fa;
+    }
+
+    h6 {
+      @include text-overflow-control;
+    }
+  }
+
+  // Photos
+  .photo-card {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: translateY(-5px);
+    }
+
+    .photo-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 767.98px) {
+  .person-content {
+    padding: 20px;
+  }
+
+  .main-content {
+    h1 {
+      font-size: 2rem;
+    }
+
+    .nav-tabs {
+      .nav-link {
+        padding: 0.5rem 0.5rem;
+        margin-right: 0.5rem;
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  .biography-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .credit-card {
+    .credit-poster {
+      height: 200px;
+    }
+  }
+
+  .photo-card {
+    .photo-image {
+      height: 120px;
+    }
+  }
+}

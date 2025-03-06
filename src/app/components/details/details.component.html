@@ -183,7 +183,7 @@
             <h4>Başrol Oyuncuları</h4>
             <div class="row">
               <div class="col-md-2 col-sm-4 col-6 mb-3" *ngFor="let actor of cast.slice(0, 6)">
-                <div class="cast-card">
+                <div class="cast-card" (click)="navigateToActor(actor.id)">
                   <img [src]="actor.profile_path ? (imageBaseUrl + 'w185' + actor.profile_path) : 'assets/person-placeholder.jpg'"
                        [alt]="actor.name" class="img-fluid rounded">
                   <h6 class="mt-2 mb-0">{{ actor.name }}</h6>
@@ -204,7 +204,7 @@
           <h4>Oyuncu Kadrosu</h4>
           <div class="row">
             <div class="col-md-2 col-sm-3 col-6 mb-4" *ngFor="let actor of cast">
-              <div class="cast-card">
+              <div class="cast-card " (click)="navigateToActor(actor.id)" >
                 <img [src]="actor.profile_path ? (imageBaseUrl + 'w185' + actor.profile_path) : 'assets/person-placeholder.jpg'"
                      [alt]="actor.name" class="img-fluid rounded">
                 <h6 class="mt-2 mb-0">{{ actor.name }}</h6>
